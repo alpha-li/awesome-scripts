@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# A simple Test script to implement a simple load balancer with DNAT.
+# Use ./lb-with-dnat set_up to set up a experiment enviroment.
+# Use ./lb-with-dnat tear_down to destroy your existing enviroment.
+# Enjoy yourserlf!
+#
+#-----------------------------------------------------------------------------------------------------------------
+#
 # +---------------+
 # | ns-server1    |
 # |               |
@@ -29,7 +36,9 @@
 #  |                                                    |   |                                       |
 #  +----------------------------------------------------+   +---------------------------------------+
 #                   192.168.1.0/24                                    10.0.0.0/24
-
+#
+#
+#-------------------------------------------------------------------------------------------------------------------
 
 
 function set_up()
@@ -91,7 +100,6 @@ function set_up()
     ip netns exec ns-server2 ip route add default via 192.168.1.1
     
     ip netns exec ns-lb echo "1" > /proc/sys/net/ipv4/ip_forward
-    #ip netns exec ns-lb iptables -t nat -A PREROUTING -d 10.0.0.2 -p tcp -j DNAT --to 192.168.1.101-192.168.1.102
     
     ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 -m state --state NEW -m statistic --mode random --probability .5 -j DNAT --to-destination 192.168.1.101
     ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 -m state --state NEW -m statistic --mode random --probability .5 -j DNAT --to-destination 192.168.1.102
