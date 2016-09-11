@@ -101,8 +101,12 @@ function set_up()
     
     ip netns exec ns-lb echo "1" > /proc/sys/net/ipv4/ip_forward
     
-    ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 -m state --state NEW -m statistic --mode random --probability .5 -j DNAT --to-destination 192.168.1.101
-    ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 -m state --state NEW -m statistic --mode random --probability .5 -j DNAT --to-destination 192.168.1.102
+    ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 \
+        -j DNAT --to-destination 192.168.1.101-192.168.1.102
+
+    #Isolate internal and external network
+    ip netns exec ns-lb iptables -t nat -A POSTROUTING -p tcp -o veth-lb-br2 \
+        -j MASQUERADE
 }
 
 function tear_down()
