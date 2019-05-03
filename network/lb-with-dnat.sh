@@ -109,7 +109,7 @@ function set_up()
     -j DNAT --to-destination 192.168.1.101
     
     ip netns exec ns-lb iptables -t nat -A PREROUTING -p tcp -d 10.0.0.2 \
-    -m state --state NEW -m statistic --mode random --probability .5 \
+    -m state --state NEW -m statistic --mode random --probability 1.0 \
     -j DNAT --to-destination 192.168.1.102
  
 
