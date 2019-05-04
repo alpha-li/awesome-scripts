@@ -45,6 +45,7 @@ function set_up()
 {
     ip link add br1 type bridge
     ip link set br1 up
+    iptables -A FORWARD -i br1 -o br1 -j ACCEPT
     
     ip netns add ns-client
     ip link add veth-br1-c type veth peer name veth-c-br1 
@@ -53,8 +54,8 @@ function set_up()
     
     ip netns exec ns-client ip addr add 10.0.0.1/24 dev veth-c-br1
     ip netns exec ns-client ip link set veth-c-br1 up
+    ip netns exec ns-client ip link set lo up
     ip link set veth-br1-c up
-    
     
     ip netns add ns-lb
     ip link add veth-br1-lb type veth peer name veth-lb-br1
@@ -65,9 +66,11 @@ function set_up()
     
     ip netns exec ns-lb ip addr add 10.0.0.2/24 dev veth-lb-br1
     ip netns exec ns-lb ip link set veth-lb-br1 up
+    ip netns exec ns-lb ip link set lo up
     
     ip link add br2 type bridge
     ip link set br2 up
+    iptables -A FORWARD -i br2 -o br2 -j ACCEPT
     
     ip link add veth-lb-br2 type veth peer name veth-br2-lb
     ip link set veth-lb-br2 up
@@ -88,6 +91,7 @@ function set_up()
     ip link set veth-s1-br2 netns ns-server1
     ip netns exec ns-server1 ip addr add 192.168.1.101/24 dev veth-s1-br2
     ip netns exec ns-server1 ip link set veth-s1-br2 up
+    ip netns exec ns-server1 ip link set lo up
     ip netns exec ns-server1 ip route add default via 192.168.1.1
     
     
@@ -97,6 +101,7 @@ function set_up()
     ip link set veth-s2-br2 netns ns-server2
     ip netns exec ns-server2 ip addr add 192.168.1.102/24 dev veth-s2-br2
     ip netns exec ns-server2 ip link set veth-s2-br2 up
+    ip netns exec ns-server2 ip link set lo up
     ip netns exec ns-server2 ip route add default via 192.168.1.1
     
     ip netns exec ns-lb echo "1" > /proc/sys/net/ipv4/ip_forward
